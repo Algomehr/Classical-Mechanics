@@ -2,11 +2,12 @@ import React, { useMemo } from 'react';
 import type { Solution, PlotDataPoint } from '../types';
 import { GraphsTab } from './GraphsTab';
 import { SimulationTab } from './SimulationTab';
-import { IconAtom, IconChart, IconInfo, Icon3D } from './icons';
+import { IconAtom, IconChart, IconInfo, Icon3D, IconSliders, IconCode, IconPlay } from './icons';
 import { Marked } from 'marked';
 import katex from 'katex';
-import { IconPlay } from './icons';
 import { Plot3DTab } from './Plot3DTab';
+import { ParametersTab } from './ParametersTab';
+import { CodeTab } from './CodeTab';
 
 interface OutputTabsProps {
   isLoading: boolean;
@@ -15,12 +16,16 @@ interface OutputTabsProps {
   plotData: PlotDataPoint[] | null;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  interactiveParams: Record<string, number> | null;
+  onParamChange: (name: string, value: number) => void;
+  onCodeUpdate: (codes: { numericalCode: string; simulationCode: string }) => void;
 }
 
-const TabButton: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode; }> = ({ active, onClick, children }) => (
+const TabButton: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean; }> = ({ active, onClick, children, disabled }) => (
   <button
     onClick={onClick}
-    className={`flex items-center px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800 ${
+    disabled={disabled}
+    className={`flex items-center px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${
       active
         ? 'border-b-2 border-cyan-400 text-cyan-300'
         : 'text-gray-400 hover:text-white'
@@ -36,9 +41,13 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
   solution,
   plotData,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  interactiveParams,
+  onParamChange,
+  onCodeUpdate
 }) => {
   const has3DData = useMemo(() => plotData?.some(p => p.z !== undefined), [plotData]);
+  const hasParameters = useMemo(() => solution?.parameters && solution.parameters.length > 0, [solution]);
 
   const renderContent = () => {
     if (isLoading) {
@@ -80,6 +89,8 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
             {activeTab === 'graphs' && <GraphsTab plotData={plotData} />}
             {activeTab === 'simulation' && <SimulationTab simulationCode={solution.simulationCode} plotData={plotData} />}
             {activeTab === 'plot3d' && has3DData && <Plot3DTab plotData={plotData} />}
+            {activeTab === 'parameters' && hasParameters && interactiveParams && <ParametersTab parameters={solution.parameters} paramValues={interactiveParams} onParamChange={onParamChange} />}
+            {activeTab === 'code' && <CodeTab numericalCode={solution.numericalCode} simulationCode={solution.simulationCode} onUpdate={onCodeUpdate} isLoading={isLoading} />}
         </div>
     );
   };
@@ -97,6 +108,12 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
                  <IconChart className="w-5 h-5 ml-2" />
                 نمودارها
               </TabButton>
+              {hasParameters && (
+                <TabButton active={activeTab === 'parameters'} onClick={() => setActiveTab('parameters')}>
+                  <IconSliders className="w-5 h-5 ml-2" />
+                  پارامترها
+                </TabButton>
+              )}
               {has3DData && (
                 <TabButton active={activeTab === 'plot3d'} onClick={() => setActiveTab('plot3d')}>
                   <Icon3D className="w-5 h-5 ml-2" />
@@ -106,6 +123,10 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
               <TabButton active={activeTab === 'simulation'} onClick={() => setActiveTab('simulation')}>
                 <IconPlay className="w-5 h-5 ml-2" />
                 شبیه‌سازی
+              </TabButton>
+               <TabButton active={activeTab === 'code'} onClick={() => setActiveTab('code')}>
+                  <IconCode className="w-5 h-5 ml-2" />
+                  کد
               </TabButton>
             </nav>
           </div>
@@ -150,7 +171,7 @@ const ExplanationTab: React.FC<{ explanation: string }> = ({ explanation }) => {
             name: 'inlineKatex',
             level: 'inline' as const,
             start(src: string) { return src.indexOf('$'); },
-            tokenizer(src: string) {
+            tokenizer(src:string) {
                 const match = src.match(/^\$((?:\\\$|[^$])+?)\$/);
                 if (match) {
                     return {

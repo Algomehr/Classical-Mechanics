@@ -1,8 +1,18 @@
 
+export interface Parameter {
+  name: string;
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+}
+
 export interface Solution {
   explanation: string;
   numericalCode: string;
   simulationCode: string;
+  parameters: Parameter[];
 }
 
 export interface PlotDataPoint {

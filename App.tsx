@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { InputPanel } from './components/InputPanel';
 import { OutputTabs } from './components/OutputTabs';
 import { solveProblem } from './services/geminiService';
@@ -12,12 +12,22 @@ const App: React.FC = () => {
   const [solution, setSolution] = useState<Solution | null>(null);
   const [plotData, setPlotData] = useState<PlotDataPoint[] | null>(null);
   const [activeTab, setActiveTab] = useState('explanation');
+  const [interactiveParams, setInteractiveParams] = useState<Record<string, number> | null>(null);
 
-  const executeNumericalCode = (code: string): PlotDataPoint[] => {
+  const executeNumericalCode = useCallback((code: string, params: Record<string, number> | null): PlotDataPoint[] => {
     try {
-      // کد دریافت شده از Gemini باید بدنه یک تابع باشد که داده‌ها را محاسبه و برمی‌گرداند.
-      const simulationFunction = new Function(code);
-      const data = simulationFunction();
+      let simulationFunction;
+      let data;
+      
+      if (params && Object.keys(params).length > 0) {
+        const paramNames = Object.keys(params);
+        const paramValues = Object.values(params);
+        simulationFunction = new Function(...paramNames, code);
+        data = simulationFunction(...paramValues);
+      } else {
+        simulationFunction = new Function(code);
+        data = simulationFunction();
+      }
       
       if (!Array.isArray(data) || data.length === 0) {
         throw new Error("کد عددی تولید شده یک آرایه داده معتبر را برنگرداند.");
@@ -33,13 +43,14 @@ const App: React.FC = () => {
       console.error("Error executing numerical code:", e);
       throw new Error(`اجرای کد تحلیل عددی تولید شده با شکست مواجه شد. \nجزئیات: ${e.message}`);
     }
-  };
+  }, []);
 
   const handleSolve = async () => {
     setIsLoading(true);
     setError(null);
     setSolution(null);
     setPlotData(null);
+    setInteractiveParams(null);
     setActiveTab('explanation'); // با هر حل جدید به تب توضیحات برگرد
 
     try {
@@ -47,7 +58,14 @@ const App: React.FC = () => {
       setSolution(result.solution);
 
       if (result.solution.numericalCode) {
-        const data = executeNumericalCode(result.solution.numericalCode);
+         const initialParams = result.solution.parameters?.reduce((acc, p) => {
+            acc[p.name] = p.value;
+            return acc;
+        }, {} as Record<string, number>) || null;
+        
+        setInteractiveParams(initialParams);
+        
+        const data = executeNumericalCode(result.solution.numericalCode, initialParams);
         setPlotData(data);
       }
       
@@ -62,6 +80,40 @@ const App: React.FC = () => {
   const handleSetExample = (examplePrompt: string) => {
     setProblemDescription(examplePrompt);
   }
+  
+  const handleParamChange = (name: string, value: number) => {
+    setInteractiveParams(prev => (prev ? { ...prev, [name]: value } : null));
+  };
+  
+  const handleCodeUpdate = useCallback((codes: { numericalCode: string; simulationCode: string }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+        const data = executeNumericalCode(codes.numericalCode, interactiveParams);
+        setPlotData(data);
+        setSolution(prev => (prev ? { ...prev, numericalCode: codes.numericalCode, simulationCode: codes.simulationCode } : null));
+        // برای مشاهده نتیجه بلافاصله به تب شبیه‌سازی برو
+        setActiveTab('simulation');
+    } catch (e: any) {
+        setError(`خطا در اجرای کد اصلاح شده: ${e.message}`);
+        // برای اصلاح خطا به تب کد برگرد
+        setActiveTab('code');
+    } finally {
+        setIsLoading(false);
+    }
+  }, [executeNumericalCode, interactiveParams]);
+
+  useEffect(() => {
+    if (solution?.numericalCode && interactiveParams) {
+        try {
+            setError(null);
+            const data = executeNumericalCode(solution.numericalCode, interactiveParams);
+            setPlotData(data);
+        } catch (e: any) {
+            setError(`خطا در باز-محاسبه شبیه‌سازی: ${e.message}`);
+        }
+    }
+  }, [interactiveParams, solution?.numericalCode, executeNumericalCode]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col p-4" dir="rtl">
@@ -94,6 +146,9 @@ const App: React.FC = () => {
             plotData={plotData}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            interactiveParams={interactiveParams}
+            onParamChange={handleParamChange}
+            onCodeUpdate={handleCodeUpdate}
           />
         </div>
       </main>
