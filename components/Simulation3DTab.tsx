@@ -10,8 +10,10 @@ interface Simulation3DTabProps {
 
 export const Simulation3DTab: React.FC<Simulation3DTabProps> = ({ simulationCode, plotData }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const animationFrameId = useRef<number>();
-  const startTimeRef = useRef<number>();
+  // FIX: Initialize useRef with a value to fix "Expected 1 arguments, but got 0" error.
+  const animationFrameId = useRef<number | null>(null);
+  // FIX: Initialize useRef with a value to fix "Expected 1 arguments, but got 0" error.
+  const startTimeRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const mountNode = mountRef.current;

@@ -66,7 +66,7 @@ ${problemDescription}
     *   **High Accuracy**: You MUST implement the 4th-order Runge-Kutta (RK4) method or a similarly accurate integrator. Avoid simpler methods like Euler's method to ensure precision.
     *   **Sufficient Data**: Generate a high-resolution dataset with at least 200 points over a suitable time interval for smooth and accurate plotting.
     *   **Encapsulation**: All logic for the simulation must be self-contained. The body of code itself must end with \`return data_array;\`.
-    *   **Data Structure**: Each element in the returned array MUST be an object. For 2D problems, use \`{ t: number, x: number, y: number, vx: number, vy: number }\`. For 3D problems, you MUST include the z-coordinate and its velocity: \`{ t: number, x: number, y: number, z: number, vx: number, vy: number, vz: number }\`.
+    *   **Data Structure**: Each element in the returned array MUST be an object. For 2D problems, use \`{ t: number, x: number, y: number, vx: number, vy: number }\`. For 3D problems, you MUST include the z-coordinate and its velocity: \`{ t: number, x: number, y: number, z: number, vx: number, vy: number, vz: number }\`. You should also calculate and include other relevant physical quantities like total energy ('energy'), and momentum components ('px', 'py', 'pz') where applicable.
 4.  **\`simulationCode\`**: Write a JavaScript arrow function expression for rendering the 2D animation on an HTML canvas.
     *   **Signature**: The function expression must have the signature: \`(ctx, data, time, canvas) => { ... }\`.
     *   **Interpolation**: Find the object's state (position) at the current animation \`time\` by interpolating between points in the \`data\` array. Simple linear interpolation is sufficient.

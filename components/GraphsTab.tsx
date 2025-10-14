@@ -25,7 +25,11 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
     );
   }
 
-  const hasEnergy = plotData[0] && plotData[0].energy !== undefined;
+  const hasEnergy = plotData[0]?.energy !== undefined;
+  const hasMomentum = plotData[0]?.px !== undefined && plotData[0]?.py !== undefined;
+  const has3DPosition = plotData[0]?.z !== undefined;
+  const has3DVelocity = plotData[0]?.vz !== undefined;
+  const has3DMomentum = hasMomentum && plotData[0]?.pz !== undefined;
 
   return (
     <div className="h-full overflow-y-auto p-2 sm:p-4 space-y-4">
@@ -52,6 +56,7 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
             <Legend />
             <Line type="monotone" dataKey="x" stroke="#4FD1C5" dot={false} name="موقعیت x" />
             <Line type="monotone" dataKey="y" stroke="#F6AD55" dot={false} name="موقعیت y" />
+            {has3DPosition && <Line type="monotone" dataKey="z" stroke="#B794F4" dot={false} name="موقعیت z" />}
           </LineChart>
         </ResponsiveContainer>
       </ChartWrapper>
@@ -66,6 +71,7 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
             <Legend />
             <Line type="monotone" dataKey="vx" stroke="#4FD1C5" dot={false} name="سرعت vx" />
             <Line type="monotone" dataKey="vy" stroke="#F6AD55" dot={false} name="سرعت vy" />
+            {has3DVelocity && <Line type="monotone" dataKey="vz" stroke="#B794F4" dot={false} name="سرعت vz" />}
           </LineChart>
         </ResponsiveContainer>
       </ChartWrapper>
@@ -80,6 +86,23 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
                 <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
                 <Legend />
                 <Line type="monotone" dataKey="energy" stroke="#B794F4" dot={false} name="انرژی کل" />
+              </LineChart>
+            </ResponsiveContainer>
+        </ChartWrapper>
+      )}
+
+      {hasMomentum && (
+         <ChartWrapper title="تکانه برحسب زمان">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={plotData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
+                <XAxis dataKey="t" stroke="#A0AEC0" name="زمان" />
+                <YAxis stroke="#A0AEC0" />
+                <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
+                <Legend />
+                <Line type="monotone" dataKey="px" stroke="#4FD1C5" dot={false} name="تکانه px" />
+                <Line type="monotone" dataKey="py" stroke="#F6AD55" dot={false} name="تکانه py" />
+                {has3DMomentum && <Line type="monotone" dataKey="pz" stroke="#B794F4" dot={false} name="تکانه pz" />}
               </LineChart>
             </ResponsiveContainer>
         </ChartWrapper>

@@ -24,5 +24,9 @@ export interface PlotDataPoint {
   vx: number;
   vy: number;
   vz?: number;
-  [key: string]: number | undefined; // Allow for other properties like energy and optional z/vz
+  energy?: number;
+  px?: number;
+  py?: number;
+  pz?: number;
+  [key: string]: number | undefined; // Allow for other properties
 }

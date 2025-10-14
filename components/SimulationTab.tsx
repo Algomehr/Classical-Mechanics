@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useEffect } from 'react';
 import type { PlotDataPoint } from '../types';
 
@@ -9,8 +10,10 @@ interface SimulationTabProps {
 
 export const SimulationTab: React.FC<SimulationTabProps> = ({ simulationCode, plotData }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameId = useRef<number>();
-  const startTimeRef = useRef<number>();
+  // FIX: Initialize useRef with a value to fix "Expected 1 arguments, but got 0" error.
+  const animationFrameId = useRef<number | null>(null);
+  // FIX: Initialize useRef with a value to fix "Expected 1 arguments, but got 0" error.
+  const startTimeRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const canvas = canvasRef.current;
