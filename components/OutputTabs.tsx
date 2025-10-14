@@ -2,12 +2,13 @@ import React, { useMemo } from 'react';
 import type { Solution, PlotDataPoint } from '../types';
 import { GraphsTab } from './GraphsTab';
 import { SimulationTab } from './SimulationTab';
-import { IconAtom, IconChart, IconInfo, Icon3D, IconSliders, IconCode, IconPlay } from './icons';
+import { IconAtom, IconChart, IconInfo, Icon3D, IconSliders, IconCode, IconPlay, IconCubePlay } from './icons';
 import { Marked } from 'marked';
 import katex from 'katex';
 import { Plot3DTab } from './Plot3DTab';
 import { ParametersTab } from './ParametersTab';
 import { CodeTab } from './CodeTab';
+import { Simulation3DTab } from './Simulation3DTab';
 
 interface OutputTabsProps {
   isLoading: boolean;
@@ -18,7 +19,7 @@ interface OutputTabsProps {
   setActiveTab: (tab: string) => void;
   interactiveParams: Record<string, number> | null;
   onParamChange: (name: string, value: number) => void;
-  onCodeUpdate: (codes: { numericalCode: string; simulationCode: string }) => void;
+  onCodeUpdate: (codes: { numericalCode: string; simulationCode: string; simulationCode3D?: string }) => void;
 }
 
 const TabButton: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean; }> = ({ active, onClick, children, disabled }) => (
@@ -48,6 +49,7 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
 }) => {
   const has3DData = useMemo(() => plotData?.some(p => p.z !== undefined), [plotData]);
   const hasParameters = useMemo(() => solution?.parameters && solution.parameters.length > 0, [solution]);
+  const has3DAnimation = useMemo(() => solution?.simulationCode3D && has3DData, [solution, has3DData]);
 
   const renderContent = () => {
     if (isLoading) {
@@ -90,7 +92,8 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
             {activeTab === 'simulation' && <SimulationTab simulationCode={solution.simulationCode} plotData={plotData} />}
             {activeTab === 'plot3d' && has3DData && <Plot3DTab plotData={plotData} />}
             {activeTab === 'parameters' && hasParameters && interactiveParams && <ParametersTab parameters={solution.parameters} paramValues={interactiveParams} onParamChange={onParamChange} />}
-            {activeTab === 'code' && <CodeTab numericalCode={solution.numericalCode} simulationCode={solution.simulationCode} onUpdate={onCodeUpdate} isLoading={isLoading} />}
+            {activeTab === 'code' && <CodeTab numericalCode={solution.numericalCode} simulationCode={solution.simulationCode} simulationCode3D={solution.simulationCode3D} onUpdate={onCodeUpdate} isLoading={isLoading} />}
+            {activeTab === 'simulation3d' && has3DAnimation && <Simulation3DTab simulationCode={solution.simulationCode3D!} plotData={plotData} />}
         </div>
     );
   };
@@ -99,7 +102,7 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
     <div className="bg-gray-800/50 border border-gray-700 rounded-lg flex flex-col h-full shadow-lg">
       {solution && (
           <div className="border-b border-gray-700 px-4">
-            <nav className="-mb-px flex space-x-4 space-x-reverse" aria-label="Tabs">
+            <nav className="-mb-px flex space-x-4 space-x-reverse overflow-x-auto">
               <TabButton active={activeTab === 'explanation'} onClick={() => setActiveTab('explanation')}>
                 <IconInfo className="w-5 h-5 ml-2" />
                 توضیحات و تحلیل
@@ -122,8 +125,14 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
               )}
               <TabButton active={activeTab === 'simulation'} onClick={() => setActiveTab('simulation')}>
                 <IconPlay className="w-5 h-5 ml-2" />
-                شبیه‌سازی
+                شبیه‌سازی ۲ بعدی
               </TabButton>
+              {has3DAnimation && (
+                <TabButton active={activeTab === 'simulation3d'} onClick={() => setActiveTab('simulation3d')}>
+                  <IconCubePlay className="w-5 h-5 ml-2" />
+                  شبیه‌سازی ۳ بعدی
+                </TabButton>
+              )}
                <TabButton active={activeTab === 'code'} onClick={() => setActiveTab('code')}>
                   <IconCode className="w-5 h-5 ml-2" />
                   کد

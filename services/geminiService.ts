@@ -25,6 +25,10 @@ const solutionSchema = {
       type: Type.STRING,
       description: "یک عبارت تابع ارو فانکشن (arrow function) جاوااسکریپت برای رندر انیمیشن دو بعدی روی بوم (canvas). امضای تابع باید به شکل `(ctx, data, time, canvas) => { ... }` باشد."
     },
+    simulationCode3D: {
+      type: Type.STRING,
+      description: "OPTIONAL. For 3D problems ONLY. A JavaScript arrow function for rendering a 3D animation using three.js. Signature MUST be `(scene, data, time, three) => { ... }`. This code adds/updates objects in the provided `scene` and `three` library instance."
+    },
     parameters: {
       type: Type.ARRAY,
       description: "آرایه‌ای از پارامترهای فیزیکی کلیدی که کاربر می‌تواند به صورت تعاملی تغییر دهد.",
@@ -67,6 +71,12 @@ ${problemDescription}
     *   **Signature**: The function expression must have the signature: \`(ctx, data, time, canvas) => { ... }\`.
     *   **Interpolation**: Find the object's state (position) at the current animation \`time\` by interpolating between points in the \`data\` array. Simple linear interpolation is sufficient.
     *   **Canvas Drawing**: Use the canvas API (\`ctx\`) to draw the scene. Clear the canvas (\`ctx.clearRect\`) at the start of each frame. Use \`canvas.width\` and \`canvas.height\` to scale the simulation and center the view appropriately. Make the visualization clear and physically representative. For 3D problems, project the motion onto the XY plane for this 2D visualization.
+5.  **\`simulationCode3D\`** (Optional): ONLY for problems with clear 3D motion (e.g., helical motion, orbits not in the XY plane), write a JavaScript arrow function for rendering with three.js. If the motion is 2D, DO NOT provide this field.
+    *   **Signature**: The function must have the exact signature: \`(scene, data, time, three) => { ... }\`.
+    *   **State Management**: Your code will be called on every animation frame. It must handle the creation and updating of 3D objects. A good pattern is to check if an object (e.g., \`scene.getObjectByName('particle')\`) exists. If not, create and add it to the scene. On every frame, update its position. You can also draw a trail.
+    *   **Interpolation**: Use the same time interpolation technique as the 2D simulation to find the particle's current \`{x, y, z}\` state from the \`data\` array.
+    *   **Dependencies**: Assume \`three\` is the \`THREE\` library object, passed as an argument.
+    *   **Scope**: Do NOT create a camera, renderer, or animation loop. This is handled by the host application. Only provide the function body that manipulates objects within the given \`scene\`.
 
 Analyze the problem carefully and generate the complete JSON object as requested. Do not include any text outside the JSON object.
 `;

@@ -4,7 +4,8 @@ import { IconPlay, IconRefreshCw } from './icons';
 interface CodeTabProps {
   numericalCode: string;
   simulationCode: string;
-  onUpdate: (codes: { numericalCode: string; simulationCode: string }) => void;
+  simulationCode3D?: string;
+  onUpdate: (codes: { numericalCode: string; simulationCode: string; simulationCode3D?: string }) => void;
   isLoading: boolean;
 }
 
@@ -21,30 +22,36 @@ const CodeEditor: React.FC<{ title: string; value: string; onChange: (value: str
     </div>
 );
 
-export const CodeTab: React.FC<CodeTabProps> = ({ numericalCode, simulationCode, onUpdate, isLoading }) => {
+export const CodeTab: React.FC<CodeTabProps> = ({ numericalCode, simulationCode, simulationCode3D, onUpdate, isLoading }) => {
     const [numCode, setNumCode] = useState(numericalCode);
     const [simCode, setSimCode] = useState(simulationCode);
+    const [simCode3D, setSimCode3D] = useState(simulationCode3D);
 
     useEffect(() => {
         setNumCode(numericalCode);
         setSimCode(simulationCode);
-    }, [numericalCode, simulationCode]);
+        setSimCode3D(simulationCode3D);
+    }, [numericalCode, simulationCode, simulationCode3D]);
 
     const handleUpdate = () => {
-        onUpdate({ numericalCode: numCode, simulationCode: simCode });
+        onUpdate({ numericalCode: numCode, simulationCode: simCode, simulationCode3D: simCode3D });
     };
 
     const handleReset = () => {
         setNumCode(numericalCode);
         setSimCode(simulationCode);
+        setSimCode3D(simulationCode3D);
     };
 
-    const hasChanges = numCode !== numericalCode || simCode !== simulationCode;
+    const hasChanges = numCode !== numericalCode || simCode !== simulationCode || simCode3D !== simulationCode3D;
 
     return (
         <div className="h-full overflow-y-auto p-4 space-y-4">
             <CodeEditor title="کد تحلیل عددی" value={numCode} onChange={setNumCode} disabled={isLoading} />
-            <CodeEditor title="کد شبیه‌سازی بصری" value={simCode} onChange={setSimCode} disabled={isLoading} />
+            <CodeEditor title="کد شبیه‌سازی بصری ۲ بعدی" value={simCode} onChange={setSimCode} disabled={isLoading} />
+            {simulationCode3D !== undefined && (
+                <CodeEditor title="کد شبیه‌سازی بصری ۳ بعدی" value={simCode3D || ''} onChange={setSimCode3D} disabled={isLoading} />
+            )}
             <div className="flex items-center gap-4 pt-2">
                 <button
                     onClick={handleUpdate}

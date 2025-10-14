@@ -62,6 +62,15 @@ export const Icon3D: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+export const IconCubePlay: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"></path>
+      <path d="M3.27 6.96 12 12.01l8.73-5.05"></path>
+      <path d="M12 22.08V12"></path>
+      <path d="M17 14.5v5a1 1 0 0 0 1.5.87l3-2.5a1 1 0 0 0 0-1.74l-3-2.5A1 1 0 0 0 17 14.5z"></path>
+    </svg>
+  );
+
 export const IconSliders: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="4" y1="21" x2="4" y2="14"></line>

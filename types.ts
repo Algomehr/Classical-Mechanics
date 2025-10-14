@@ -12,6 +12,7 @@ export interface Solution {
   explanation: string;
   numericalCode: string;
   simulationCode: string;
+  simulationCode3D?: string;
   parameters: Parameter[];
 }
 

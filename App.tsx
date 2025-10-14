@@ -85,15 +85,15 @@ const App: React.FC = () => {
     setInteractiveParams(prev => (prev ? { ...prev, [name]: value } : null));
   };
   
-  const handleCodeUpdate = useCallback((codes: { numericalCode: string; simulationCode: string }) => {
+  const handleCodeUpdate = useCallback((codes: { numericalCode: string; simulationCode: string; simulationCode3D?: string }) => {
     setIsLoading(true);
     setError(null);
     try {
         const data = executeNumericalCode(codes.numericalCode, interactiveParams);
         setPlotData(data);
-        setSolution(prev => (prev ? { ...prev, numericalCode: codes.numericalCode, simulationCode: codes.simulationCode } : null));
-        // برای مشاهده نتیجه بلافاصله به تب شبیه‌سازی برو
-        setActiveTab('simulation');
+        setSolution(prev => (prev ? { ...prev, numericalCode: codes.numericalCode, simulationCode: codes.simulationCode, simulationCode3D: codes.simulationCode3D } : null));
+        // برای مشاهده نتیجه بلافاصله به تب مناسب برو
+        setActiveTab(codes.simulationCode3D ? 'simulation3d' : 'simulation');
     } catch (e: any) {
         setError(`خطا در اجرای کد اصلاح شده: ${e.message}`);
         // برای اصلاح خطا به تب کد برگرد
