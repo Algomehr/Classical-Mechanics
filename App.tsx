@@ -153,7 +153,7 @@ const App: React.FC = () => {
         </div>
       </main>
       <footer className="text-center text-gray-500 text-sm mt-6 pb-4">
-        ساخته شده با قدرت Gemini API
+        توسعه یافته توسط <a href="https://mehrdad.netlify.app/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">مهرداد رجبی</a> | ساخته شده با قدرت Gemini API
       </footer>
     </div>
   );
