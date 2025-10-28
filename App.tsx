@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { InputPanel } from './components/InputPanel';
 import { OutputTabs } from './components/OutputTabs';
@@ -121,11 +122,11 @@ const App: React.FC = () => {
           <div className="flex justify-center items-center gap-3">
               <IconAtom className="w-10 h-10 text-cyan-400"/>
               <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-500">
-                تحلیلگر هوشمند مکانیک تحلیلی
+                تحلیلگر هوشمند سیستم‌های فیزیکی
               </h1>
           </div>
         <p className="text-gray-400 mt-2 max-w-2xl mx-auto">
-            مسائل مکانیک را وارد کنید تا هوش مصنوعی آن را تحلیل، شبیه‌سازی و نمودارهای حرکت را برای شما رسم کند.
+            مسائل فیزیک و مهندسی (مکانیک، مدارهای الکتریکی و ...) را وارد کنید تا هوش مصنوعی آن را تحلیل، شبیه‌سازی و نمودارها را برای شما رسم کند.
         </p>
       </header>
       <main className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-7xl mx-auto w-full">

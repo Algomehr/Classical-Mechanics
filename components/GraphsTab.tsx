@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { PlotDataPoint } from '../types';
@@ -30,15 +31,16 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
   const has3DPosition = plotData[0]?.z !== undefined;
   const has3DVelocity = plotData[0]?.vz !== undefined;
   const has3DMomentum = hasMomentum && plotData[0]?.pz !== undefined;
+  const hasVoltages = plotData[0]?.vc !== undefined || plotData[0]?.vl !== undefined || plotData[0]?.vr !== undefined;
 
   return (
     <div className="h-full overflow-y-auto p-2 sm:p-4 space-y-4">
-      <ChartWrapper title="مسیر حرکت (y برحسب x)">
+      <ChartWrapper title="مسیر حرکت (y برحسب x) یا نمودار فاز">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={plotData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
-            <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} stroke="#A0AEC0" name="x" label={{ value: 'x', position: 'insideBottomRight', offset: -5, fill: '#A0AEC0' }} />
-            <YAxis type="number" domain={['dataMin', 'dataMax']} stroke="#A0AEC0" name="y" label={{ value: 'y', angle: -90, position: 'insideLeft', fill: '#A0AEC0' }} />
+            <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} stroke="#A0AEC0" name="x" label={{ value: 'x (موقعیت/بار)', position: 'insideBottomRight', offset: -5, fill: '#A0AEC0' }} />
+            <YAxis type="number" domain={['dataMin', 'dataMax']} stroke="#A0AEC0" name="y" label={{ value: 'y (موقعیت)', angle: -90, position: 'insideLeft', fill: '#A0AEC0' }} />
             <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
             <Legend />
             <Line type="monotone" dataKey="y" stroke="#4FD1C5" strokeWidth={2} dot={false} name="مسیر" />
@@ -46,7 +48,7 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
         </ResponsiveContainer>
       </ChartWrapper>
 
-      <ChartWrapper title="موقعیت برحسب زمان">
+      <ChartWrapper title="متغیر اصلی (موقعیت/بار) برحسب زمان">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={plotData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
@@ -54,14 +56,14 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
             <YAxis stroke="#A0AEC0" />
             <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
             <Legend />
-            <Line type="monotone" dataKey="x" stroke="#4FD1C5" dot={false} name="موقعیت x" />
-            <Line type="monotone" dataKey="y" stroke="#F6AD55" dot={false} name="موقعیت y" />
-            {has3DPosition && <Line type="monotone" dataKey="z" stroke="#B794F4" dot={false} name="موقعیت z" />}
+            <Line type="monotone" dataKey="x" stroke="#4FD1C5" dot={false} name="متغیر x" />
+            <Line type="monotone" dataKey="y" stroke="#F6AD55" dot={false} name="متغیر y" />
+            {has3DPosition && <Line type="monotone" dataKey="z" stroke="#B794F4" dot={false} name="متغیر z" />}
           </LineChart>
         </ResponsiveContainer>
       </ChartWrapper>
 
-      <ChartWrapper title="سرعت برحسب زمان">
+      <ChartWrapper title="مشتق متغیر اصلی (سرعت/جریان) برحسب زمان">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={plotData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
@@ -69,9 +71,9 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
             <YAxis stroke="#A0AEC0" />
             <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
             <Legend />
-            <Line type="monotone" dataKey="vx" stroke="#4FD1C5" dot={false} name="سرعت vx" />
-            <Line type="monotone" dataKey="vy" stroke="#F6AD55" dot={false} name="سرعت vy" />
-            {has3DVelocity && <Line type="monotone" dataKey="vz" stroke="#B794F4" dot={false} name="سرعت vz" />}
+            <Line type="monotone" dataKey="vx" stroke="#4FD1C5" dot={false} name="مشتق x" />
+            <Line type="monotone" dataKey="vy" stroke="#F6AD55" dot={false} name="مشتق y" />
+            {has3DVelocity && <Line type="monotone" dataKey="vz" stroke="#B794F4" dot={false} name="مشتق z" />}
           </LineChart>
         </ResponsiveContainer>
       </ChartWrapper>
@@ -103,6 +105,23 @@ export const GraphsTab: React.FC<GraphsTabProps> = ({ plotData }) => {
                 <Line type="monotone" dataKey="px" stroke="#4FD1C5" dot={false} name="تکانه px" />
                 <Line type="monotone" dataKey="py" stroke="#F6AD55" dot={false} name="تکانه py" />
                 {has3DMomentum && <Line type="monotone" dataKey="pz" stroke="#B794F4" dot={false} name="تکانه pz" />}
+              </LineChart>
+            </ResponsiveContainer>
+        </ChartWrapper>
+      )}
+
+      {hasVoltages && (
+         <ChartWrapper title="ولتاژ اجزای مدار برحسب زمان">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={plotData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
+                <XAxis dataKey="t" stroke="#A0AEC0" name="زمان" />
+                <YAxis stroke="#A0AEC0" label={{ value: 'ولتاژ (V)', angle: -90, position: 'insideLeft', fill: '#A0AEC0' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
+                <Legend />
+                {plotData[0]?.vc !== undefined && <Line type="monotone" dataKey="vc" stroke="#4FD1C5" dot={false} name="ولتاژ خازن (Vc)" />}
+                {plotData[0]?.vl !== undefined && <Line type="monotone" dataKey="vl" stroke="#F6AD55" dot={false} name="ولتاژ سلف (Vl)" />}
+                {plotData[0]?.vr !== undefined && <Line type="monotone" dataKey="vr" stroke="#B794F4" dot={false} name="ولتاژ مقاومت (Vr)" />}
               </LineChart>
             </ResponsiveContainer>
         </ChartWrapper>

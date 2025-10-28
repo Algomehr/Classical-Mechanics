@@ -1,4 +1,5 @@
 
+
 export interface Parameter {
   name: string;
   label: string;
@@ -28,5 +29,9 @@ export interface PlotDataPoint {
   px?: number;
   py?: number;
   pz?: number;
+  // Circuit-specific properties
+  vc?: number; // Capacitor voltage
+  vl?: number; // Inductor voltage
+  vr?: number; // Resistor voltage
   [key: string]: number | undefined; // Allow for other properties
 }

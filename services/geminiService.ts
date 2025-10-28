@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Solution } from "../types";
 
@@ -51,7 +52,7 @@ const solutionSchema = {
 
 export async function solveProblem(problemDescription: string): Promise<{ solution: Solution }> {
   const detailedPrompt = `
-You are an expert in analytical mechanics and computational physics. Your task is to analyze a given physics problem and provide a detailed explanation, JavaScript code for numerical simulation, JavaScript code for 2D animation, and a list of interactive parameters.
+You are an expert in analytical mechanics, computational physics, and electrical engineering. Your task is to analyze a given physics or engineering problem and provide a detailed explanation, JavaScript code for numerical simulation, JavaScript code for 2D animation, and a list of interactive parameters.
 
 **Problem:**
 ${problemDescription}
@@ -59,8 +60,8 @@ ${problemDescription}
 **Your response MUST be a JSON object conforming to the provided schema.**
 
 **Detailed Instructions:**
-1.  **\`explanation\`**: Provide a comprehensive, step-by-step physical and mathematical analysis. Start with the principles (e.g., Newton's laws, Lagrangian), derive the equations of motion, and explain the numerical method you will use. **It is MANDATORY to use LaTeX for ALL mathematical formulas, variables, and expressions.** Use '$' for inline math (e.g., $v_0$) and '$$' for block equations (e.g., $$x(t) = x_0 + v_0 t + \\frac{1}{2} a t^2$$). Use Markdown for structure.
-2.  **\`parameters\`**: Identify key physical parameters from the problem description that would be interesting for a user to vary interactively (e.g., initial velocity, mass, gravity, angle). For each parameter, define its variable name (\`name\`), a user-friendly \`label\`, its initial \`value\`, and a sensible range (\`min\`, \`max\`) and \`step\` for a slider. The range should typically be around ±50% of the initial value.
+1.  **\`explanation\`**: Provide a comprehensive, step-by-step physical and mathematical analysis. Start with the principles (e.g., Newton's laws, Lagrangian, Kirchhoff's laws), derive the equations of motion or circuit equations, and explain the numerical method you will use. **It is MANDATORY to use LaTeX for ALL mathematical formulas, variables, and expressions.** Use '$' for inline math (e.g., $v_0$) and '$$' for block equations (e.g., $$x(t) = x_0 + v_0 t + \\frac{1}{2} a t^2$$). Use Markdown for structure.
+2.  **\`parameters\`**: Identify key physical parameters from the problem description that would be interesting for a user to vary interactively (e.g., initial velocity, mass, gravity, resistance, inductance, capacitance). For each parameter, define its variable name (\`name\`), a user-friendly \`label\`, its initial \`value\`, and a sensible range (\`min\`, \`max\`) and \`step\` for a slider. The range should typically be around ±50% of the initial value.
 3.  **\`numericalCode\`**: Write the body of a single JavaScript function.
     *   **Function Signature**: This function body will receive the parameters defined in the \`parameters\` list as arguments. For example, if you define parameters with names "v0" and "angle", the code should be written as if it's the body of a function like \`function(v0, angle) { ... }\`. Do NOT declare the function itself.
     *   **High Accuracy**: You MUST implement the 4th-order Runge-Kutta (RK4) method or a similarly accurate integrator. Avoid simpler methods like Euler's method to ensure precision.
@@ -81,6 +82,13 @@ ${problemDescription}
     *   **Interpolation**: Use the same time interpolation technique as the 2D simulation to find the particle's current \`{x, y, z}\` state from the \`data\` array.
     *   **Dependencies**: Assume \`three\` is the \`THREE\` library object, passed as an argument.
     *   **Scope**: Do NOT create a camera, renderer, or animation loop. This is handled by the host application. Only provide the function body that manipulates objects within the given \`scene\`.
+
+**Special Instructions for Electrical Circuit Problems:**
+*   If the problem describes an electrical circuit (e.g., RLC, RL, RC circuits), you MUST adapt your response.
+*   **Variable Mapping**: The primary state variable is often charge \`q\` or current \`i\`. You MUST map the main variable to the \`x\` coordinate and its time derivative to the \`vx\` velocity component. For example, for an RLC circuit, map charge \`q\` to \`x\` and current \`i = dq/dt\` to \`vx\`. For these 1D problems, set \`y\` and \`vy\` (and z/vz) to 0 in the \`numericalCode\` data output.
+*   **Explanation**: In the \`explanation\` field, explicitly state this mapping, for example: "For the purpose of simulation and plotting, we map the charge q(t) to the variable x, and the current i(t) to the variable vx."
+*   **Additional Quantities**: In the \`numericalCode\`, in addition to \`t, x, vx\`, also calculate and include important circuit-specific quantities in the data points. For example, for an RLC circuit, include capacitor voltage \`vc\`, inductor voltage \`vl\`, and resistor voltage \`vr\`. The data point might look like: \`{ t, x: q, y: 0, vx: i, vy: 0, vc, vl, vr }\`.
+*   **2D Simulation (\`simulationCode\`)**: For circuit problems, instead of animating a particle, draw a simple schematic of the circuit. For example, for a series RLC, draw symbols for the voltage source, resistor, inductor, and capacitor. You can then use text to display the instantaneous values of current (i) and capacitor voltage (Vc) next to the components, updating them based on the animation \`time\`. This provides a much more intuitive visualization than a dot moving on a line.
 
 Analyze the problem carefully and generate the complete JSON object as requested. Do not include any text outside the JSON object.
 `;
